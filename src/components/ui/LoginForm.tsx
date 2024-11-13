@@ -45,7 +45,7 @@ export default function LoginForm() {
       <div className="flex flex-col items-center">
         <div className="border-2 border-black rounded-lg p-1 mb-6">
           <Image
-            src="https://creativereview.imgix.net/content/uploads/2017/11/F1-logo-red-on-white.png"
+            src="/placeholder.svg?height=100&width=120"
             alt="Logo"
             width={120}
             height={100}

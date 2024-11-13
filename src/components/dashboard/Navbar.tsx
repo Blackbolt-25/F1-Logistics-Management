@@ -1,4 +1,4 @@
-import { Home, Users, Briefcase, Settings, BarChart, Barcode, Car } from 'lucide-react'
+import { Home, Users, Briefcase, Settings, BarChart } from 'lucide-react'
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar"
 import Link from 'next/link'
 
@@ -10,7 +10,7 @@ const navItems = {
   team: [
     { name: 'Dashboard', icon: Home, href: '/dashboard/team' },
     { name: 'Projects', icon: Briefcase, href: '/dashboard/team/projects' },
-    { name: 'Team', icon: Car, href: '/dashboard/team/members' },
+    { name: 'Team', icon: Users, href: '/dashboard/team/members' },
   ],
   logistics_head: [
     { name: 'Dashboard', icon: Home, href: '/dashboard/logistics_head' },
