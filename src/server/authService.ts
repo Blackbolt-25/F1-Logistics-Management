@@ -16,10 +16,8 @@ export async function verifyUser(username: string, password: string): Promise<{ 
     try {
       const query = `SELECT * FROM ${table} WHERE username = $1`;
       const result = await pool.query(query, [username]);
-      console.log(result.rowCount)
       if (result.rows.length > 0) {
         const user = result.rows[0];
-        console.log(user.password,password);
         // const passwordMatch = await bcrypt.compare(password, user.password);
         // if (passwordMatch) {
         //   return { success: true, message: 'Login successful', userType: table };
@@ -27,9 +25,11 @@ export async function verifyUser(username: string, password: string): Promise<{ 
         if(user.password.trim() === password.trim()){
           return { success: true, message: 'Login successful', userType: table };
         }
+        // await pool.end();
       }
     } catch (error) {
       console.error(`Error querying ${table}:`, error);
+      await pool.end();
     }
   }
 

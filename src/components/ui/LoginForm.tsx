@@ -28,7 +28,7 @@ export default function LoginForm() {
       const data = await response.json()
 
       if (data.success) {
-        // Redirect to the appropriate dashboard based on user type
+        sessionStorage.setItem('credentials', JSON.stringify({ username, password }))
         router.push(`/dashboard/${data.userType}`)
       } else {
         setError(data.message || 'Login failed. Please try again.')
@@ -45,7 +45,7 @@ export default function LoginForm() {
       <div className="flex flex-col items-center">
         <div className="border-2 border-black rounded-lg p-1 mb-6">
           <Image
-            src="/placeholder.svg?height=100&width=120"
+            src="https://creativereview.imgix.net/content/uploads/2017/11/F1-logo-red-on-white.png"
             alt="Logo"
             width={120}
             height={100}
