@@ -19,11 +19,14 @@ const navItems = {
   ],
   financial_head: [
     { name: 'Budget', icon: Home, href: '/dashboard/financial_head/budget' },
-    { name: 'Requests', icon: Briefcase, href: '/dashboard/financial_head' },
+    { name: 'Requests', icon: Briefcase, href: '/dashboard/financial_head/Requests' },
   ],
   technical_head: [
-    { name: 'Requests', icon: Briefcase, href: '/dashboard/technical_head' },
+    { name: 'Requests', icon: Briefcase, href: '/dashboard/technical_head/Requests' },
     { name: 'Inventory', icon: Home, href: '/dashboard/technical_head/inventory' },
+  ],
+  fia_admin : [
+    { name: 'Requests', icon: Briefcase, href: '/dashboard/fia_admin/Requests' },
   ],
 }
 

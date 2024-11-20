@@ -5,7 +5,7 @@ import { url } from 'inspector/promises'
 import { usePathname } from 'next/navigation'
 import { redirect } from 'next/navigation'
 
-export default function OutLayout({ 
+export default function Layout({ 
   children,
   params
 }: { 
@@ -13,6 +13,7 @@ export default function OutLayout({
   params: { userType?: string }
 }) {
   const pathname = usePathname().split("/");
-  var userType = pathname[pathname.length - 1];
+  var userType = pathname[pathname.length - 2];
+  console.log(userType)
   return <DashboardLayout userType={userType}>{children}</DashboardLayout>
 }

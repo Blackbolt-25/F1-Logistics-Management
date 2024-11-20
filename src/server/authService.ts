@@ -9,7 +9,7 @@ const pool = new Pool({
   port: parseInt(process.env.DB_PORT || '5432'),
 });
 
-const tables = ['team', 'logistics_head', 'financial_head', 'technical_head'];
+const tables = ['team', 'logistics_head', 'financial_head', 'technical_head','fia_admin'];
 
 export async function verifyUser(username: string, password: string): Promise<{ success: boolean; message: string; userType?: string }> {
   for (const table of tables) {
