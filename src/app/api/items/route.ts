@@ -22,6 +22,7 @@ export async function GET(request: Request) {
 
     const client = await pool.connect()
     const result = await client.query('SELECT item_id,item_name, item_type, est_weight FROM item')
+    // console.log(result)
     client.release()
 
     return NextResponse.json(result.rows)

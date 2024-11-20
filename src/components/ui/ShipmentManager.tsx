@@ -12,6 +12,7 @@ interface Shipment {
   shipment_type: string;
   start_location: string;
   race_id: string;
+  race_name: string,
   request_id: string;
   estimated_delivery_date: string;
   actual_delivery_date: string | null;
@@ -136,8 +137,7 @@ export default function ShipmentManager() {
           <TableRow>
             <TableHead>Shipment ID</TableHead>
             <TableHead>Type</TableHead>
-            <TableHead>Start Location</TableHead>
-            <TableHead>Race ID</TableHead>
+            <TableHead>Race name</TableHead>
             <TableHead>Request ID</TableHead>
             <TableHead>Estimated Delivery</TableHead>
             <TableHead>Actual Delivery</TableHead>
@@ -150,8 +150,7 @@ export default function ShipmentManager() {
             <TableRow key={shipment.shipment_id}>
               <TableCell>{shipment.shipment_id}</TableCell>
               <TableCell>{shipment.shipment_type}</TableCell>
-              <TableCell>{shipment.start_location}</TableCell>
-              <TableCell>{shipment.race_id}</TableCell>
+              <TableCell>{shipment.race_name}</TableCell>
               <TableCell>{shipment.request_id}</TableCell>
               <TableCell>{new Date(shipment.estimated_delivery_date).toLocaleDateString()}</TableCell>
               <TableCell>

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { Pool } from 'pg'
-// import { verifyCredentials } from '@/lib/auth'
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -28,30 +27,37 @@ export async function GET(request: Request) {
 
   try {
     const client = await pool.connect()
-    const result = await client.query(`
-      SELECT 
-        Request_id, 
-        Request.race_id,
-        Time_of_request, 
-        race_name, 
-        Status, 
-        Requester_id, 
-        Design_approver_id, 
-        Design_comments, 
-        Finance_approver_id, 
-        Financial_comments, 
-        Cost
-      FROM Request,race
-      WHERE Requester_id = $1 AND Request.race_id = race.race_id;
-    `, [technicalHeadId])
-    client.release()
-    return NextResponse.json(result.rows)
-  } catch (error) {
-    console.error('Error fetching requests:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
-  }}
+    try {
+      const result = await client.query(`
+        SELECT 
+          Request_id, 
+          Request.race_id,
+          Time_of_request, 
+          race_name, 
+          Status, 
+          Requester_id, 
+          Design_approver_id, 
+          Design_comments, 
+          Finance_approver_id, 
+          Financial_comments, 
+          Cost
+        FROM Request, race
+        WHERE Requester_id = $1 AND Request.race_id = race.race_id;
+      `, [technicalHeadId])
+      return NextResponse.json(result.rows)
+    } catch (dbError : any) {
+      console.error('Database error:', dbError)
+      return NextResponse.json({ error: dbError.message, detail: dbError }, { status: 500 })
+    } finally {
+      client.release()
+    }
+  } catch (error : any) {
+    console.error('Error handling request:', error)
+    return NextResponse.json({ error: error.message, detail: error }, { status: 500 })
+  }
+}
 
-// ... POST method implementation
+// POST method implementation
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization')
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -61,18 +67,17 @@ export async function POST(request: Request) {
   const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':')
   const [username, password] = credentials
 
-
+  try {
     const { requestId, raceId, items, technicalHeadId } = await request.json()
-
     const client = await pool.connect()
-    
+
     try {
       await client.query('BEGIN')
 
       // Insert the request
       const requestResult = await client.query(`
-        INSERT INTO Request (Request_id, race_id, Status, Requester_id)
-        VALUES ($1, $2, 'Pending', $3)
+        INSERT INTO Request (Request_id, race_id, Requester_id)
+        VALUES ($1, $2, $3)
         RETURNING *
       `, [requestId, raceId, technicalHeadId])
 
@@ -83,15 +88,18 @@ export async function POST(request: Request) {
           VALUES ($1, $2, $3)
         `, [requestId, item.id, item.quantity])
       }
-
+      await client.query(`CALL calculate_cost('${requestId}')`)
       await client.query('COMMIT')
-
       return NextResponse.json(requestResult.rows[0])
-    } catch (error) {
+    } catch (dbError : any) {
       await client.query('ROLLBACK')
-      throw error
+      console.error('Database transaction error:', dbError.message)
+      return NextResponse.json({ message: dbError.message, detail: dbError }, { status: 500})
     } finally {
       client.release()
     }
+  } catch (error:any) {
+    console.error('Error processing POST request:', error)
+    return NextResponse.json({ error: error.message, detail: error }, { status: 500 })
+  }
 }
-

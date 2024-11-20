@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -7,7 +9,7 @@ import { MultiSelect } from "@/components/ui/multi-select"
 import { useToast } from "@/components/ui/use-toast"
 
 interface Item {
-  item_ID: number;
+  item_id: number;
   item_name: string;
   item_type: string;
   est_weight: number;
@@ -34,9 +36,11 @@ export default function AddRequestDialog({ isOpen, onClose, onRequestAdded, tech
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchItems();
-    fetchRaces();
-  }, []);
+    if (isOpen) {
+      fetchItems();
+      fetchRaces();
+    }
+  }, [isOpen]);
 
   const fetchItems = async () => {
     try {
@@ -53,9 +57,19 @@ export default function AddRequestDialog({ isOpen, onClose, onRequestAdded, tech
         setItems(data);
       } else {
         console.error('Failed to fetch items');
+        toast({
+          title: "Error",
+          description: "Failed to fetch items. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error fetching items:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while fetching items.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -74,9 +88,19 @@ export default function AddRequestDialog({ isOpen, onClose, onRequestAdded, tech
         setRaces(data);
       } else {
         console.error('Failed to fetch races');
+        toast({
+          title: "Error",
+          description: "Failed to fetch races. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error fetching races:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while fetching races.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -120,10 +144,17 @@ export default function AddRequestDialog({ isOpen, onClose, onRequestAdded, tech
       console.error('Error adding request:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred.",
+        description: "An unexpected error occurred while adding the request.",
         variant: "destructive",
       });
     }
+  };
+
+  const handleItemSelection = (values: string[]) => {
+    setSelectedItems(values.map(id => ({
+      id: parseInt(id),
+      quantity: 1
+    })));
   };
 
   return (
@@ -166,27 +197,33 @@ export default function AddRequestDialog({ isOpen, onClose, onRequestAdded, tech
               Items
             </label>
             <MultiSelect
-              options={items.map(item => ({
-                // label: `${item.item_name} (${item.item_type}, ${item.est_weight}kg)`,
-                // value: item.item_ID.toString()
-              }))}
-              selected={selectedItems.map(item => item.id.toString())}
-              onChange={(selected) => setSelectedItems(selected.map(id => ({ id: parseInt(id), quantity: 1 })))}
+              options={items
+                .filter(item => item.item_id != null)
+                .map(item => ({
+                  label: `${item.item_name} (${item.item_type}, ${item.est_weight}kg)`,
+                  value: String(item.item_id),
+                  key: `item-${item.item_id}`
+                }))}
+              onValueChange={handleItemSelection}
               className="col-span-3"
             />
           </div>
-          {selectedItems.map((item, index) => (
-            <div key={item.id} className="grid grid-cols-4 items-center gap-4">
+          {selectedItems.map((item) => (
+            <div key={`quantity-${item.id}`} className="grid grid-cols-4 items-center gap-4">
               <label htmlFor={`quantity-${item.id}`} className="text-right">
-                Quantity for {items.find(i => i.item_ID === item.id)?.item_name}
+                Quantity for {items.find(i => i.item_id === item.id)?.item_name || 'Unknown Item'}
               </label>
               <Input
                 id={`quantity-${item.id}`}
                 type="number"
+                min="1"
                 value={item.quantity}
                 onChange={(e) => {
-                  const newSelectedItems = [...selectedItems];
-                  newSelectedItems[index].quantity = parseInt(e.target.value);
+                  const newSelectedItems = selectedItems.map(selectedItem =>
+                    selectedItem.id === item.id
+                      ? { ...selectedItem, quantity: parseInt(e.target.value) || 1 }
+                      : selectedItem
+                  );
                   setSelectedItems(newSelectedItems);
                 }}
                 className="col-span-3"

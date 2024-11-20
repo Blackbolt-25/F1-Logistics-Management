@@ -15,18 +15,47 @@ interface InventoryItem {
 
 export default function InventoryManager() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [technicalHeadId, setTechnicalHeadId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchInventory();
+    fetchTechnicalHeadId();
   }, []);
 
+  useEffect(() => {
+    if (technicalHeadId) {
+      fetchInventory();
+    }
+  }, [technicalHeadId]);
+
+  const fetchTechnicalHeadId = async () => {
+    const credentials = JSON.parse(sessionStorage.getItem('credentials') || '{}');
+    const { username, password } = credentials;
+
+    try {
+      const response = await fetch('/api/user/technical-head-id', {
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${username}:${password}`)
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTechnicalHeadId(data.technicalHeadId);
+      } else {
+        console.error('Failed to fetch technical head ID');
+      }
+    } catch (error) {
+      console.error('Error fetching technical head ID:', error);
+    }
+  };
+
   const fetchInventory = async () => {
+    if (!technicalHeadId) return;
     try {
       const credentials = JSON.parse(sessionStorage.getItem('credentials') || '{}');
       const { username, password } = credentials;
 
-      const response = await fetch('/api/inventory', {
+      const response = await fetch(`/api/inventory?technicalHeadId=${technicalHeadId}`, {
         headers: {
           'Authorization': 'Basic ' + btoa(`${username}:${password}`)
         }
@@ -53,17 +82,22 @@ export default function InventoryManager() {
   };
 
   const updateQuantity = async (inventoryId: string, newQuantity: number) => {
+    if (!technicalHeadId) return;
     try {
       const credentials = JSON.parse(sessionStorage.getItem('credentials') || '{}');
       const { username, password } = credentials;
 
-      const response = await fetch(`/api/inventory/${inventoryId}`, {
+      const response = await fetch('/api/inventory/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Basic ' + btoa(`${username}:${password}`)
         },
-        body: JSON.stringify({ quantity: newQuantity })
+        body: JSON.stringify({
+          inventoryId,
+          quantity: newQuantity,
+          technicalHeadId
+        })
       });
 
       if (response.ok) {
@@ -73,9 +107,10 @@ export default function InventoryManager() {
         });
         fetchInventory(); // Refresh the inventory data
       } else {
+        const errorData = await response.json();
         toast({
           title: "Error",
-          description: "Failed to update inventory",
+          description: errorData.error || "Failed to update inventory",
           variant: "destructive",
         });
       }

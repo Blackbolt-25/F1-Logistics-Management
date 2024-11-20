@@ -11,6 +11,8 @@ type DashboardLayoutProps = {
 }
 
 export function DashboardLayout({ children, userType }: DashboardLayoutProps) {
+
+
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden">

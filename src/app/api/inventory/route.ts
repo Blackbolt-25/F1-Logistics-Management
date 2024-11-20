@@ -14,35 +14,31 @@ export async function GET(request: Request) {
   const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':')
   const [username, password] = credentials
 
-  const { searchParams } = new URL(request.url)
-  const logisticsHeadId = searchParams.get('logisticsHeadId')
-  if (!logisticsHeadId) {
-    return NextResponse.json({ error: 'logisticsHeadId head ID is required' }, { status: 400 })
+  const url = new URL(request.url)
+  const technicalHeadId = url.searchParams.get('technicalHeadId')
+
+  if (!technicalHeadId) {
+    return NextResponse.json({ error: 'Technical Head ID is required' }, { status: 400 })
   }
+
   try {
     const client = await pool.connect()
     try {
       const result = await client.query(`
-        SELECT 
-        shipment_id,
-        shipment_type,
-        start_location,
-        sh.race_id,
-        race_name,
-        request_id,
-        estimated_delivery_date,
-        actual_delivery_date,
-        current_status
-        FROM Shipment sh,race 
-        WHERE Logistics_head_id = $1 AND sh.race_id=race.race_id
-        ORDER BY Estimated_delivery_date DESC
-      `, [logisticsHeadId])
+        SELECT i.Inventory_id, i.Item_id, it.Item_name, i.Quantity
+        FROM Inventory i
+        JOIN Item it ON i.Item_id = it.Item_id
+        JOIN Team t ON i.Team_id = t.Team_id
+        JOIN Technical_Head th ON t.Team_id = th.Team_id
+        WHERE th.Technical_head_id = $1
+      `, [technicalHeadId])
+
       return NextResponse.json(result.rows)
     } finally {
       client.release()
     }
   } catch (error) {
-    console.error('Error fetching shipments:', error)
+    console.error('Error fetching inventory:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

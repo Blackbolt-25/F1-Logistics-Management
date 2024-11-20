@@ -9,25 +9,21 @@ type NavbarProps = {
 
 const navItems = {
   team: [
-    { name: 'Requests', icon: Home, href: '/dashboard/Team/Requests' },
-    { name: 'Inventory', icon: Briefcase, href: '/dashboard/Team/inventory' },
-    { name: 'Budget', icon: Users, href: '/dashboard/Team/budget' },
-    { name: 'Shipments', icon: Users, href: '/dashboard/Team/shipment' },
+    { name: 'Requests', icon: Home, href: '/dashboard/team/Requests' },
+    { name: 'Inventory', icon: Briefcase, href: '/dashboard/team/inventory' },
+    { name: 'Budget', icon: Users, href: '/dashboard/team/budget' },
+    { name: 'Shipments', icon: Users, href: '/dashboard/team/shipment' },
   ],
   logistics_head: [
-    { name: 'Dashboard', icon: Home, href: '/dashboard/logistics_head' },
-    { name: 'Inventory', icon: Briefcase, href: '/dashboard/logistics_head/inventory' },
-    { name: 'Shipments', icon: BarChart, href: '/dashboard/logistics_head/shipments' },
+    { name: 'Shipments', icon: Home, href: '/dashboard/logistics_head/shipment' },
   ],
   financial_head: [
-    { name: 'Dashboard', icon: Home, href: '/dashboard/financial_head' },
-    { name: 'Budget', icon: Briefcase, href: '/dashboard/financial_head/budget' },
-    { name: 'Reports', icon: BarChart, href: '/dashboard/financial_head/reports' },
+    { name: 'Budget', icon: Home, href: '/dashboard/financial_head/budget' },
+    { name: 'Requests', icon: Briefcase, href: '/dashboard/financial_head' },
   ],
   technical_head: [
-    { name: 'Dashboard', icon: Home, href: '/dashboard/technical_head' },
-    { name: 'Projects', icon: Briefcase, href: '/dashboard/technical_head/projects' },
-    { name: 'Resources', icon: Settings, href: '/dashboard/technical_head/resources' },
+    { name: 'Requests', icon: Briefcase, href: '/dashboard/technical_head' },
+    { name: 'Inventory', icon: Home, href: '/dashboard/technical_head/inventory' },
   ],
 }
 

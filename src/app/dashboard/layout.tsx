@@ -1,4 +1,8 @@
+// 'use client'
+
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
+import { url } from 'inspector/promises'
+// import { usePathname } from 'next/navigation'
 import { redirect } from 'next/navigation'
 
 export default function Layout({ 
@@ -8,15 +12,10 @@ export default function Layout({
   children: React.ReactNode
   params: { userType?: string }
 }) {
-  // Convert userType to lowercase to ensure consistent routing
-  // console.log(params.userType)
-  const userType = params.userType?.toLowerCase() || 'team'
-
-  // Validate user type
-  const validUserTypes = ['team', 'logistics_head', 'financial_head', 'technical_head']
-  if (!validUserTypes.includes(userType)) {
-    redirect('/dashboard/team')
-  }
-
+  // const pathname = usePathname().split("/");
+  // var userType = pathname[pathname.length - 1];
+  // if(userType == 'team')
+  //   userType = 'Team';
+  const userType = 'team';
   return <DashboardLayout userType={userType}>{children}</DashboardLayout>
 }

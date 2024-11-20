@@ -34,8 +34,7 @@ export async function GET(request: Request) {
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Logistics head not found' }, { status: 404 })
     }
-
-    return NextResponse.json({ logisiticsHeadId: result.rows[0].current_logistics_head_id })
+    return NextResponse.json({ logisticsHeadId: result.rows[0].current_logistics_head_id })
   } catch (error) {
     console.error('Error fetching logistics head ID:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
