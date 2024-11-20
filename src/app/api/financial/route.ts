@@ -10,22 +10,27 @@ export async function GET(request: Request) {
   if (!authHeader || !authHeader.startsWith('Basic ')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const id = request.url.slice(-5);
+
+  const credentials = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':')
+  const [username, password] = credentials
+
   try {
     const client = await pool.connect()
     try {
       const result = await client.query(`
-        SELECT request_id, time_of_request, cost
-        FROM Request
-        WHERE requester_id= $1
-        ORDER BY time_of_request ASC
-      `, [id])
+        SELECT r.*, race.Race_name
+        FROM Request r
+        JOIN Race ON r.race_id = Race.Race_id
+        WHERE r.Status = 'Pending'
+        ORDER BY r.Time_of_request DESC
+      `)
 
       return NextResponse.json(result.rows)
     } finally {
-      client.release()}
+      client.release()
+    }
   } catch (error) {
-    console.error('Error fetching requests spending data:', error)
+    console.error('Error fetching financial requests:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

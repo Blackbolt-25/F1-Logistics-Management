@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const client = await pool.connect()
     try {
       // First get the team_id for the current user
-      const userResult = await client.query(`
+      var userResult = await client.query(`
         SELECT team_id
         FROM team  
         WHERE username=$1 and password=$2

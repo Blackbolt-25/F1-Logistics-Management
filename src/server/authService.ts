@@ -1,42 +1,50 @@
-import { Pool } from 'pg';
-import bcrypt from 'bcrypt';
+import { Pool, PoolClient } from 'pg';
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT || '5432'),
-});
+const tables = ['team', 'logistics_head', 'financial_head', 'technical_head', 'fia_admin'];
 
-const tables = ['team', 'logistics_head', 'financial_head', 'technical_head','fia_admin'];
+async function createDbConnection(username: string, password: string): Promise<PoolClient | null> {
+  const pool = new Pool({
+    user: username,
+    password: password,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    port: parseInt(process.env.DB_PORT || '5432'),
+  });
 
-export async function verifyUser(username: string, password: string): Promise<{ success: boolean; message: string; userType?: string }> {
-  for (const table of tables) {
-    try {
-      const query = `SELECT * FROM ${table} WHERE username = $1`;
-      const result = await pool.query(query, [username]);
-      if (result.rows.length > 0) {
-        const user = result.rows[0];
-        // const passwordMatch = await bcrypt.compare(password, user.password);
-        // if (passwordMatch) {
-        //   return { success: true, message: 'Login successful', userType: table };
-        // }
-        if(user.password.trim() === password.trim()){
-          return { success: true, message: 'Login successful', userType: table };
-        }
-        // await pool.end();
-      }
-    } catch (error) {
-      console.error(`Error querying ${table}:`, error);
-      await pool.end();
-    }
+  try {
+    const client = await pool.connect();
+    return client;
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+    return null;
   }
-
-  return { success: false, message: 'Invalid username or password' };
 }
 
-export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 1;
-  return bcrypt.hash(password, saltRounds);
+export async function verifyUser(username: string, password: string): Promise<{ success: boolean; message: string; userType?: string }> {
+  const client = await createDbConnection(username, password);
+  
+  if (!client) {
+    return { success: false, message: 'Unable to connect to database' };
+  }
+
+  try {
+    for (const table of tables) {
+      const query = `SELECT * FROM ${table} WHERE username = $1`;
+      const result = await client.query(query, [username]);
+      
+      if (result.rows.length > 0) {
+        const user = result.rows[0];
+        if (user.password.trim() === password.trim()) {
+          return { success: true, message: 'Login successful', userType: table };
+        }
+      }
+    }
+    
+    return { success: false, message: 'Invalid username or password' };
+  } catch (error) {
+    console.error('Error during user verification:', error);
+    return { success: false, message: 'An error occurred during verification' };
+  } finally {
+    client.release();
+  }
 }

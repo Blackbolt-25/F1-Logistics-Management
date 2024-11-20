@@ -133,16 +133,19 @@ export async function PUT(
 }
 
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
   try {
     if (!await verifyAuth(request)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const id = params.id;
+    const url = new URL(request.url)
+    const id = url.pathname.split('/').pop()
+
+    if (!id) {
+      return NextResponse.json({ error: 'Request ID is required' }, { status: 400 })
+    }
+
     const client = await pool.connect()
     try {
       const result = await client.query(`
