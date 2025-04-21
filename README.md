@@ -61,7 +61,7 @@ Before getting started, ensure you have the following dependencies installed:
    - Open your browser and navigate to `http://localhost:3000`
    - You should see the login screen shown below
 
-![Login Screen](https://github.com/Blackbolt-25/F1-Logistics-Management/raw/main/screenshots/login.png)
+![Login Screen](screenshots/login.png)
 
 ## System Navigation
 
